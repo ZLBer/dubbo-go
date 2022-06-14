@@ -31,7 +31,7 @@ import (
 )
 
 import (
-	"github.com/dubbogo/grpc-go/credentials/tls/certprovider"
+	"dubbo.apache.org/dubbo-go/v3/xds/certprovider"
 )
 
 const (

@@ -32,8 +32,8 @@ import (
 )
 
 import (
+	_ "dubbo.apache.org/dubbo-go/v3/xds/certprovider/pemfile"
 	"google.golang.org/grpc/connectivity"
-
 	"google.golang.org/grpc/serviceconfig"
 )
 
