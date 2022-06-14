@@ -31,14 +31,6 @@ import (
 	"errors"
 )
 
-import (
-	"dubbo.apache.org/dubbo-go/v3/xds/internal"
-)
-
-func init() {
-	internal.GetCertificateProviderBuilder = getBuilder
-}
-
 var (
 	// errProviderClosed is returned by Distributor.KeyMaterial when it is
 	// closed.
@@ -55,9 +47,9 @@ func Register(b Builder) {
 	m[b.Name()] = b
 }
 
-// getBuilder returns the Provider builder registered with the given name.
+// GetBuilder returns the Provider builder registered with the given name.
 // If no builder is registered with the provided name, nil will be returned.
-func getBuilder(name string) Builder {
+func GetBuilder(name string) Builder {
 	if b, ok := m[name]; ok {
 		return b
 	}

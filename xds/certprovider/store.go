@@ -138,7 +138,7 @@ func (bc *BuildableConfig) String() string {
 // provider name and configuration. Returns an error if there is no registered
 // builder for the given name or if the config parsing fails.
 func ParseConfig(name string, config interface{}) (*BuildableConfig, error) {
-	parser := getBuilder(name)
+	parser := GetBuilder(name)
 	if parser == nil {
 		return nil, fmt.Errorf("no certificate provider builder found for %q", name)
 	}
