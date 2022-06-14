@@ -39,13 +39,9 @@ const (
 	defaultRefreshInterval = 10 * time.Minute
 )
 
-func init() {
-	certprovider.Register(&pluginBuilder{})
-}
+type PluginBuilder struct{}
 
-type pluginBuilder struct{}
-
-func (p *pluginBuilder) ParseConfig(c interface{}) (*certprovider.BuildableConfig, error) {
+func (p *PluginBuilder) ParseConfig(c interface{}) (*certprovider.BuildableConfig, error) {
 	data, ok := c.(json.RawMessage)
 	if !ok {
 		return nil, fmt.Errorf("meshca: unsupported config type: %T", c)
@@ -59,7 +55,7 @@ func (p *pluginBuilder) ParseConfig(c interface{}) (*certprovider.BuildableConfi
 	}), nil
 }
 
-func (p *pluginBuilder) Name() string {
+func (p *PluginBuilder) Name() string {
 	return pluginName
 }
 
