@@ -28,8 +28,6 @@ package internal
 
 import (
 	"context"
-	"dubbo.apache.org/dubbo-go/v3/xds/certprovider"
-	"dubbo.apache.org/dubbo-go/v3/xds/certprovider/pemfile"
 	"time"
 )
 
@@ -37,10 +35,6 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/serviceconfig"
 )
-
-func init() {
-	certprovider.Register(&pemfile.PluginBuilder{})
-}
 
 var (
 	// WithHealthCheckFunc is set by dialoptions.go

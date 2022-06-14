@@ -27,6 +27,8 @@ package bootstrap
 
 import (
 	"bytes"
+	"dubbo.apache.org/dubbo-go/v3/xds/certprovider"
+	"dubbo.apache.org/dubbo-go/v3/xds/certprovider/pemfile"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -43,7 +45,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/google"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/credentials/tls/certprovider"
 )
 
 import (
@@ -66,6 +67,10 @@ const (
 	gRPCUserAgentName               = "gRPC Go"
 	clientFeatureNoOverprovisioning = "envoy.lb.does_not_support_overprovisioning"
 )
+
+func init() {
+	certprovider.Register(&pemfile.PluginBuilder{})
+}
 
 var gRPCVersion = fmt.Sprintf("%s %s", gRPCUserAgentName, grpc.Version)
 
