@@ -29,6 +29,7 @@ package internal
 import (
 	"context"
 	"dubbo.apache.org/dubbo-go/v3/xds/certprovider"
+	"fmt"
 	"time"
 )
 
@@ -39,6 +40,7 @@ import (
 
 func init() {
 	GetCertificateProviderBuilder = certprovider.GetBuilder
+	fmt.Println("init GetBuilder")
 }
 
 var (
