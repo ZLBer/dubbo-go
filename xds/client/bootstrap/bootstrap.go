@@ -366,7 +366,9 @@ func NewConfigFromContents(data []byte) (*Config, error) {
 				}
 
 				name := nameAndConfig.PluginName
+				fmt.Println("PluginName: " + name)
 				parser := getBuilder(nameAndConfig.PluginName)
+				fmt.Println(parser)
 				if parser == nil {
 					// We ignore plugins that we do not know about.
 					continue
