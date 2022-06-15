@@ -70,6 +70,9 @@ const (
 
 func init() {
 	certprovider.Register(&pemfile.PluginBuilder{})
+	fmt.Println("init plugin")
+	internal2.GetCertificateProviderBuilder = certprovider.GetBuilder
+	fmt.Println("init GetBuilder")
 }
 
 var gRPCVersion = fmt.Sprintf("%s %s", gRPCUserAgentName, grpc.Version)

@@ -28,8 +28,6 @@ package internal
 
 import (
 	"context"
-	"dubbo.apache.org/dubbo-go/v3/xds/certprovider"
-	"fmt"
 	"time"
 )
 
@@ -37,11 +35,6 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/serviceconfig"
 )
-
-func init() {
-	GetCertificateProviderBuilder = certprovider.GetBuilder
-	fmt.Println("init GetBuilder")
-}
 
 var (
 	// WithHealthCheckFunc is set by dialoptions.go
