@@ -327,6 +327,8 @@ func NewConfigFromContents(data []byte) (*Config, error) {
 	if err := json.Unmarshal(data, &jsonData); err != nil {
 		return nil, fmt.Errorf("xds: Failed to parse bootstrap config: %v", err)
 	}
+	//打印查看json数据
+	fmt.Println(string(data))
 
 	var node *v3corepb.Node
 	m := jsonpb.Unmarshaler{AllowUnknownFields: true}
