@@ -92,6 +92,8 @@ func pluginConfigFromJSON(jd json.RawMessage) (Options, error) {
 		}
 		opts.RefreshDuration = dur.AsDuration()
 	}
+	fmt.Println("pluginConfigFromJSON")
+	fmt.Println(opts)
 
 	if err := opts.validate(); err != nil {
 		return Options{}, err
