@@ -377,8 +377,10 @@ func NewConfigFromContents(data []byte) (*Config, error) {
 				if err != nil {
 					return nil, fmt.Errorf("xds: Config parsing for plugin %q failed: %v", name, err)
 				}
+				fmt.Println(bc)
 				configs[instance] = bc
 			}
+			fmt.Println(configs)
 			config.CertProviderConfigs = configs
 		case "server_listener_resource_name_template":
 			if err := json.Unmarshal(v, &config.ServerListenerResourceNameTemplate); err != nil {
