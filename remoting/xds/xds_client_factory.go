@@ -18,7 +18,10 @@
 package xds
 
 import (
+	"dubbo.apache.org/dubbo-go/v3/xds/client/resource"
+	"fmt"
 	v3corepb "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"google.golang.org/grpc/credentials/xds"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,10 +47,12 @@ var xdsClientFactoryFunction = func(localIP, podName, namespace string, istioAdd
 		Metadata:             mapping.GetDubboGoMetadata(""),
 	}
 
+	credentials, err := xds.NewClientCredentials(xds.ClientOptions{FallbackCreds: insecure.NewCredentials()})
+
 	nonNilCredsConfigV2 := &bootstrap.Config{
 		XDSServer: &bootstrap.ServerConfig{
 			ServerURI:    istioAddr.String(),
-			Creds:        grpc.WithTransportCredentials(insecure.NewCredentials()),
+			Creds:        grpc.WithTransportCredentials(credentials),
 			TransportAPI: version.TransportV3,
 			NodeProto:    v3NodeProto,
 		},
@@ -55,8 +60,19 @@ var xdsClientFactoryFunction = func(localIP, podName, namespace string, istioAdd
 	}
 
 	newClient, err := client.NewWithConfig(nonNilCredsConfigV2)
+
 	if err != nil {
 		return nil, err
 	}
+
+	_ = newClient.WatchEndpoints("*", func(update resource.EndpointsUpdate, err error) {
+		if err != nil {
+			fmt.Println("err" + err.Error())
+		}
+
+		fmt.Println("update")
+		fmt.Println(update)
+	})
+
 	return newClient, nil
 }
