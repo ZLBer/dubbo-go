@@ -86,3 +86,22 @@ func TestConfigUtils(t *testing.T) {
 	element := removeDuplicateElement([]string{"nacos", "nacos"})
 	assert.Equal(t, len(element), 1)
 }
+
+func TestCustomFunc(t *testing.T) {
+	t.Run("custom func", func(t *testing.T) {
+		customConfigBuilder := NewCustomConfigBuilder()
+		customConfigBuilder.SetDefineConfig("password", "encrypt")
+		customConfigBuilder.AddCustomFunc(func(rootConfig *RootConfig) error {
+			//decrypt the password
+			rootConfig.Custom.ConfigMap["password"] = "decrypt"
+			return nil
+		})
+		customConfig := customConfigBuilder.Build()
+		rootConfig.Custom = customConfig
+		err := customConfig.Init()
+		if err != nil {
+			return
+		}
+		assert.Equal(t, "decrypt", customConfig.GetDefineValue("password", ""))
+	})
+}

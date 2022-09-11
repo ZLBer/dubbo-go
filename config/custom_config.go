@@ -27,6 +27,7 @@ import (
 
 type CustomConfig struct {
 	ConfigMap map[string]interface{} `yaml:"config-map" json:"config-map,omitempty" property:"config-map"`
+	Functions []CustomFunc
 }
 
 func (*CustomConfig) Prefix() string {
@@ -34,7 +35,10 @@ func (*CustomConfig) Prefix() string {
 }
 
 func (c *CustomConfig) Init() error {
-	return c.check()
+	if err := c.check(); err != nil {
+		return err
+	}
+	return c.runCustomFunc()
 }
 
 func (c *CustomConfig) check() error {
@@ -49,6 +53,15 @@ func (c *CustomConfig) GetDefineValue(key string, default_value interface{}) int
 		return define_value
 	}
 	return default_value
+}
+
+func (c *CustomConfig) runCustomFunc() error {
+	for _, f := range c.Functions {
+		if err := f(rootConfig); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func GetDefineValue(key string, default_value interface{}) interface{} {
@@ -72,6 +85,14 @@ func (ccb *CustomConfigBuilder) SetDefineConfig(key string, val interface{}) *Cu
 		ccb.customConfig.ConfigMap = make(map[string]interface{})
 	}
 	ccb.customConfig.ConfigMap[key] = val
+	return ccb
+}
+
+// CustomFunc must not block
+type CustomFunc func(config *RootConfig) error
+
+func (ccb *CustomConfigBuilder) AddCustomFunc(fc CustomFunc) *CustomConfigBuilder {
+	ccb.customConfig.Functions = append(ccb.customConfig.Functions, fc)
 	return ccb
 }
 
