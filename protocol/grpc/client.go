@@ -18,6 +18,8 @@
 package grpc
 
 import (
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/opentracing/opentracing-go"
 	"reflect"
 	"strconv"
 	"sync"
@@ -27,11 +29,10 @@ import (
 import (
 	"github.com/dubbogo/gost/log/logger"
 
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-
-	"github.com/opentracing/opentracing-go"
-
 	"google.golang.org/grpc"
+
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"gopkg.in/yaml.v2"
 )
@@ -65,7 +66,6 @@ func NewClient(url *common.URL) (*Client, error) {
 	//connectTimeout := config.GetConsumerConfig().ConnectTimeout
 
 	dialOpts = append(dialOpts,
-		grpc.WithInsecure(),
 		grpc.WithBlock(),
 		// todo config network timeout
 		grpc.WithTimeout(time.Second*3),
@@ -77,6 +77,15 @@ func NewClient(url *common.URL) (*Client, error) {
 			grpc.MaxCallSendMsgSize(1024*1024*maxMessageSize),
 		),
 	)
+	if url.GetParam(constant.SslEnabledKey, "false") == "true" {
+		creds, err := credentials.NewClientTLSFromFile(url.GetParam(constant.TLSCert, ""), url.GetParam(constant.TLSServerNAME, ""))
+		if err != nil {
+			return nil, err
+		}
+		dialOpts = append(dialOpts, grpc.WithTransportCredentials(creds))
+	} else {
+		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
 
 	conn, err := grpc.Dial(url.Location, dialOpts...)
 	if err != nil {

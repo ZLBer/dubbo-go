@@ -22,6 +22,7 @@ import (
 )
 
 import (
+	getty "github.com/apache/dubbo-getty"
 	perrors "github.com/pkg/errors"
 )
 
@@ -56,6 +57,7 @@ type (
 	// ServerConfig holds supported types by the multiconfig package
 	ServerConfig struct {
 		SSLEnabled bool
+		TLSBuilder getty.TlsConfigBuilder
 
 		// heartbeat
 		HeartbeatPeriod string `default:"60s" yaml:"heartbeat-period" json:"heartbeat-period,omitempty"`
@@ -81,6 +83,9 @@ type (
 
 	// ClientConfig holds supported types by the multi config package
 	ClientConfig struct {
+		SSLEnabled bool
+		TLSBuilder getty.TlsConfigBuilder
+
 		ReconnectInterval int `default:"0" yaml:"reconnect-interval" json:"reconnect-interval,omitempty"`
 
 		// session pool
