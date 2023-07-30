@@ -18,7 +18,9 @@
 package xds
 
 import (
+	"context"
 	"errors"
+	"istio.io/api/dubbo/v1alpha1"
 	"sync"
 	"time"
 )
@@ -134,6 +136,8 @@ type WrappedClientImpl struct {
 		xdsSniffingTimeout stores xds sniffing timeout duration
 	*/
 	xdsSniffingTimeout time.Duration
+
+	snpClient v1alpha1.ServiceNameMappingServiceClient
 }
 
 func GetXDSWrappedClient() *WrappedClientImpl {
@@ -564,6 +568,25 @@ func (w *WrappedClientImpl) MatchRoute(routerConfig resource.RouteConfigUpdate, 
 	return nil, errors.New("not found route")
 }
 
+func (w *WrappedClientImpl) RegisterSNP(serviceInterface string, group string, appName string) error {
+	_, err := w.snpClient.RegisterServiceAppMapping(context.Background(), &v1alpha1.ServiceMappingRequest{
+		Namespace:       group,
+		ApplicationName: appName,
+		InterfaceNames:  []string{serviceInterface},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *WrappedClientImpl) GetSNP(key string, group string) {
+	w.xdsClient.WatchDubboServiceNameMapping("", func(update resource.DubboServiceNameMappingUpdate, err error) {
+
+	})
+
+}
+
 type XDSWrapperClient interface {
 	Subscribe(svcUniqueName, interfaceName, hostAddr string, lst registry.NotifyListener) error
 	UnSubscribe(svcUniqueName string)
@@ -575,4 +598,7 @@ type XDSWrapperClient interface {
 	GetHostAddress() xdsCommon.HostAddr
 	GetIstioPodIP() string
 	MatchRoute(routerConfig resource.RouteConfigUpdate, invocation protocol.Invocation) (*resource.Route, error)
+
+	RegisterSNP(serviceInterface string, group string, appName string) error
+	GetSNP(key string, group string)
 }

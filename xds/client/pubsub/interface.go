@@ -44,4 +44,7 @@ type UpdateHandler interface {
 	// NewConnectionError handles connection errors from the xDS stream. The
 	// error will be reported to all the resource watchers.
 	NewConnectionError(err error)
+
+	// NewDubboServiceNameMapping handles updates to dubbo service name mapping
+	NewDubboServiceNameMapping(map[string]resource.DubboServiceNameMappingTypeErrTuple, resource.UpdateMetadata)
 }

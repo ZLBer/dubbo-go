@@ -265,6 +265,10 @@ func (t *Controller) handleResponse(resp proto.Message) (resource.ResourceType, 
 		var update map[string]resource.EndpointsUpdateErrTuple
 		update, md, err = resource.UnmarshalEndpoints(opts)
 		t.updateHandler.NewEndpoints(update, md)
+	case resource.DubboServiceNameMappingType:
+		var update map[string]resource.DubboServiceNameMappingTypeErrTuple
+		update, md, err = resource.UnmarshalDubboServiceNameMapping(opts)
+		t.updateHandler.NewDubboServiceNameMapping(update, md)
 	default:
 		return rType, "", "", resourceversion.ErrResourceTypeUnsupported{
 			ErrStr: fmt.Sprintf("Resource type %v unknown in response from server", rType),

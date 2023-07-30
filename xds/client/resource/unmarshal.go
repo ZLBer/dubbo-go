@@ -131,6 +131,21 @@ func processAllResources(opts *UnmarshalOptions, ret interface{}) (UpdateMetadat
 			// Add place holder in the map so we know this resource name was in
 			// the response.
 			ret2[name] = EndpointsUpdateErrTuple{Err: err}
+		case map[string]DubboServiceNameMappingTypeErrTuple:
+			name, update, err := unmarshalDubboServiceNameMapping(r, opts.Logger)
+			name = ParseName(name).String()
+			if err == nil {
+				ret2[name] = DubboServiceNameMappingTypeErrTuple{Update: update}
+				continue
+			}
+			if name == "" {
+				topLevelErrors = append(topLevelErrors, err)
+				continue
+			}
+			perResourceErrors[name] = err
+			// Add place holder in the map so we know this resource name was in
+			// the response.
+			ret2[name] = DubboServiceNameMappingTypeErrTuple{Err: err}
 		}
 	}
 

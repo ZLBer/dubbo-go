@@ -68,6 +68,10 @@ type Pubsub struct {
 	edsWatchers map[string]map[*watchInfo]bool
 	edsCache    map[string]resource.EndpointsUpdate
 	edsMD       map[string]resource.UpdateMetadata
+
+	snpWatchers map[string]map[*watchInfo]bool
+	snpCache    map[string]resource.DubboServiceNameMappingUpdate
+	snpMD       map[string]resource.UpdateMetadata
 }
 
 // New creates a new Pubsub.
@@ -90,6 +94,9 @@ func New(watchExpiryTimeout time.Duration, logger dubbogoLogger.Logger) *Pubsub 
 		edsWatchers: make(map[string]map[*watchInfo]bool),
 		edsCache:    make(map[string]resource.EndpointsUpdate),
 		edsMD:       make(map[string]resource.UpdateMetadata),
+		snpWatchers: make(map[string]map[*watchInfo]bool),
+		snpCache:    make(map[string]resource.DubboServiceNameMappingUpdate),
+		snpMD:       make(map[string]resource.UpdateMetadata),
 	}
 	go pb.run()
 	return pb
@@ -155,6 +162,20 @@ func (pb *Pubsub) WatchEndpoints(clusterName string, cb func(resource.EndpointsU
 		rType:       resource.EndpointsResource,
 		target:      clusterName,
 		edsCallback: cb,
+	}
+
+	wi.expiryTimer = time.AfterFunc(pb.watchExpiryTimeout, func() {
+		wi.timeout()
+	})
+	return pb.watch(wi)
+}
+
+func (pb *Pubsub) WatchDubboServiceNameMapping(clusterName string, cb func(resource.DubboServiceNameMappingUpdate, error)) (first bool, cancel func() bool) {
+	wi := &watchInfo{
+		c:           pb,
+		rType:       resource.DubboServiceNameMappingType,
+		target:      clusterName,
+		snpCallback: cb,
 	}
 
 	wi.expiryTimer = time.AfterFunc(pb.watchExpiryTimeout, func() {

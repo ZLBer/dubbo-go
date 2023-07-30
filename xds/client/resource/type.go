@@ -87,6 +87,10 @@ func IsEndpointsResource(url string) bool {
 	return url == version.V2EndpointsURL || url == version.V3EndpointsURL
 }
 
+func IsDubboServiceNameMappingResource(url string) bool {
+	return url == version.DubboServiceNameMappingType
+}
+
 // ServiceStatus is the status of the update.
 type ServiceStatus int
 
@@ -141,6 +145,7 @@ const (
 	RouteConfigResource
 	ClusterResource
 	EndpointsResource
+	DubboServiceNameMappingType
 )
 
 func (r ResourceType) String() string {
@@ -155,6 +160,8 @@ func (r ResourceType) String() string {
 		return "ClusterResource"
 	case EndpointsResource:
 		return "EndpointsResource"
+	case DubboServiceNameMappingType:
+		return "DubboServiceNameMappingType"
 	default:
 		return "UnknownResource"
 	}

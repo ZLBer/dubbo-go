@@ -65,4 +65,6 @@ const (
 	V3HTTPConnManagerURL      = googleapiPrefix + "envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager"
 	V3UpstreamTLSContextURL   = googleapiPrefix + "envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext"
 	V3DownstreamTLSContextURL = googleapiPrefix + "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext"
+
+	DubboServiceNameMappingType = "dubbo.networking.v1alpha1.v1.servicenamemapping"
 )

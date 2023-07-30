@@ -349,3 +349,48 @@ func (pb *Pubsub) NewConnectionError(err error) {
 		}
 	}
 }
+
+func (pb *Pubsub) NewDubboServiceNameMapping(updates map[string]resource.DubboServiceNameMappingTypeErrTuple, metadata resource.UpdateMetadata) {
+	pb.mu.Lock()
+	defer pb.mu.Unlock()
+
+	for name, uErr := range updates {
+		if s, ok := pb.snpWatchers[name]; ok {
+			if uErr.Err != nil {
+				// On error, keep previous version for each resource. But update
+				// status and error.
+				mdCopy := pb.snpMD[name]
+				mdCopy.ErrState = metadata.ErrState
+				mdCopy.Status = metadata.Status
+				pb.snpMD[name] = mdCopy
+				for wi := range s {
+					// Send the watcher the individual error, instead of the
+					// overall combined error from the metadata.ErrState.
+					wi.newError(uErr.Err)
+				}
+				continue
+			}
+			// If we get here, it means that the update is a valid one. Notify
+			// watchers only if this is a first time update or it is different
+			// from the one currently cached.
+			if cur, ok := pb.snpCache[name]; !ok || !proto.Equal(cur.Raw, uErr.Update.Raw) {
+				for wi := range s {
+					wi.newUpdate(uErr.Update)
+				}
+			}
+			// Sync cache.
+			pb.logger.Debugf("EDS resource with name %v, value %+v added to cache", name, pretty.ToJSON(uErr))
+			pb.snpCache[name] = uErr.Update
+			// Set status to ACK, and clear error state. The metadata might be a
+			// NACK metadata because some other resources in the same response
+			// are invalid.
+			mdCopy := metadata
+			mdCopy.Status = resource.ServiceStatusACKed
+			mdCopy.ErrState = nil
+			if metadata.ErrState != nil {
+				mdCopy.Version = metadata.ErrState.Version
+			}
+			pb.snpMD[name] = mdCopy
+		}
+	}
+}

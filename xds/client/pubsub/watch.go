@@ -53,6 +53,7 @@ type watchInfo struct {
 	rdsCallback func(resource.RouteConfigUpdate, error)
 	cdsCallback func(resource.ClusterUpdate, error)
 	edsCallback func(resource.EndpointsUpdate, error)
+	snpCallback func(resource.DubboServiceNameMappingUpdate, error)
 
 	expiryTimer *time.Timer
 
@@ -120,6 +121,8 @@ func (wi *watchInfo) sendErrorLocked(err error) {
 		u = resource.ClusterUpdate{}
 	case resource.EndpointsResource:
 		u = resource.EndpointsUpdate{}
+	case resource.DubboServiceNameMappingType:
+		u = resource.DubboServiceNameMappingUpdate{}
 	}
 	wi.c.scheduleCallback(wi, u, err)
 }
@@ -155,6 +158,9 @@ func (pb *Pubsub) watch(wi *watchInfo) (first bool, cancel func() bool) {
 	case resource.EndpointsResource:
 		watchers = pb.edsWatchers
 		mds = pb.edsMD
+	case resource.DubboServiceNameMappingType:
+		watchers = pb.snpWatchers
+		mds = pb.snpMD
 	default:
 		pb.logger.Errorf("unknown watch type: %v", wi.rType)
 		return false, nil
@@ -205,6 +211,11 @@ func (pb *Pubsub) watch(wi *watchInfo) (first bool, cancel func() bool) {
 			pb.logger.Debugf("EDS resource with name %v found in cache: %+v", wi.target, pretty.ToJSON(v))
 			wi.newUpdate(v)
 		}
+	case resource.DubboServiceNameMappingType:
+		if v, ok := pb.snpCache[resourceName]; ok {
+			pb.logger.Debugf("SNP resource with name %v found in cache: %+v", wi.target, pretty.ToJSON(v))
+			wi.newUpdate(v)
+		}
 	}
 
 	return firstWatcher, func() bool {
@@ -236,6 +247,8 @@ func (pb *Pubsub) watch(wi *watchInfo) (first bool, cancel func() bool) {
 					delete(pb.cdsCache, resourceName)
 				case resource.EndpointsResource:
 					delete(pb.edsCache, resourceName)
+				case resource.DubboServiceNameMappingType:
+					delete(pb.snpCache, resourceName)
 				}
 			}
 		}

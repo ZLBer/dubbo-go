@@ -168,6 +168,8 @@ func (v3c *client) ParseResponse(r proto.Message) (resource.ResourceType, []*any
 		rType = resource.ClusterResource
 	case resource.IsEndpointsResource(url):
 		rType = resource.EndpointsResource
+	case resource.IsDubboServiceNameMappingResource(url):
+		rType = resource.DubboServiceNameMappingType
 	default:
 		return rType, nil, "", "", controllerversion.ErrResourceTypeUnsupported{
 			ErrStr: fmt.Sprintf("Resource type %v unknown in response from server", resp.GetTypeUrl()),

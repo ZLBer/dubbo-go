@@ -240,6 +240,18 @@ func (a *authority) watchEndpoints(clusterName string, cb func(resource.Endpoint
 	}
 }
 
+func (a *authority) watchDubboServiceNameMapping(clusterName string, cb func(resource.DubboServiceNameMappingUpdate, error)) (cancel func()) {
+	first, cancelF := a.pubsub.WatchDubboServiceNameMapping(clusterName, cb)
+	if first {
+		a.controller.AddWatch(resource.DubboServiceNameMappingType, clusterName)
+	}
+	return func() {
+		if cancelF() {
+			a.controller.RemoveWatch(resource.DubboServiceNameMappingType, clusterName)
+		}
+	}
+}
+
 func (a *authority) reportLoad(server string) (*load.Store, func()) {
 	return a.controller.ReportLoad(server)
 }

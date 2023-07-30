@@ -109,3 +109,17 @@ func (c *clientImpl) WatchEndpoints(clusterName string, cb func(resource.Endpoin
 		unref()
 	}
 }
+
+func (c *clientImpl) WatchDubboServiceNameMapping(clusterName string, snpCb func(resource.DubboServiceNameMappingUpdate, error)) (cancel func()) {
+	n := resource.ParseName(clusterName)
+	a, unref, err := c.findAuthority(n)
+	if err != nil {
+		snpCb(resource.DubboServiceNameMappingUpdate{}, err)
+		return func() {}
+	}
+	cancelF := a.watchDubboServiceNameMapping(n.String(), snpCb)
+	return func() {
+		cancelF()
+		unref()
+	}
+}
